@@ -1,26 +1,62 @@
 class Segment
+  require 'colorize'
+  
+  attr_accessor :neighbors, :ancestry, :position, :children
   
   @@dict = File.new("/usr/share/dict/words").readlines.each {|i| i.chomp!}
+#  @@dict = %w[car cry crypt cat cart]
   @@board = [%w[c a t a ], %w[a r t c], %w[r c y t], %w[w a r p]]
+#  @@board = [%w[a b c d ], %w[e f g h], %w[i j k l], %w[m n o p]]
   @@words = []
   #0    c a t a
   #1    a r t c
   #2    r c y t
   #3    w a r p
-
-  attr_accessor :position, :neighbors, :ancestry
   
   def initialize(position, ancestry)
     @position = position
     @ancestry = ancestry
     @neighbors = []
+    @children = []
+  end
+  
+  # If it fails both tests nothing happens, we run to the end and parent spawns another.
+  
+  def valid_length?
+    @ancestry.count >= 3
+  end
+  
+  def update_ancestry
+    @ancestry << @position
+  end
+  
+  def is_a_word?
+    dict_copy = @@dict.clone
+    dict_copy.keep_if {|i| /\A#{make_string}\z/.match(i)}
+    puts "Checking wordness..."
+    puts "We had " + "#{@@words.count}".red + " words..."
+    @@words << dict_copy[0]
+    puts "Is_a_word? self is: #{self.object_id}"
+    puts "And it's the string: #{make_string}"
+    puts "Now we have " + "#{@@words.count}".red
+    puts "It's a word: #{dict_copy.first}".green
+    puts "Is_a_word? Class: #{dict_copy[0].class}"
+    return dict_copy[0].class == String
+  end 
+  
+  def part_of_word?  
+    dict_copy = @@dict.clone
+    dict_copy.keep_if {|i| /\A#{make_string}\w+/.match(i)}
+    puts "Part_of_word self is: #{self.object_id}"
+    puts "And it's the string #{make_string}"
+    puts "It's a part of: #{dict_copy.first}, and maybe others....".green
+    puts "Part_of_word? Class: #{dict_copy[0].class}"
+    return dict_copy[0].class == String
   end
   
   def find_neighbors
-
     row = @position[0]
     column = @position[1]
-
     north = [row - 1, column]
     south = [row + 1, column]
     east = [row, column + 1]
@@ -35,10 +71,6 @@ class Segment
     return @neighbors
   end
   
-  def update_ancestry
-    @ancestry << @position
-  end
-  
   def make_string
     word = ""
     @ancestry.each do |i|
@@ -47,106 +79,59 @@ class Segment
     return word
   end
   
-  def is_a_word?
-    if make_string.length > 1
-      @@dict.each do |i|
-        if /#{make_string}\z/.match(i)
-          @@words << i
-          return true
-        end
-      end
+  def run
+    update_ancestry
+    puts "Updating ancestry... Ancestry is: #{print @ancestry.each {|i| i}}, self is: #{self.object_id}"
+    puts "Running...".blue
+    puts "Length is... #{@ancestry.count}".blue
+    puts "Is length valid?... #{valid_length?}".blue
+    find_neighbors
+    if valid_length? && !part_of_word?
+      puts "First run/if TRUE".red
+      self.neighbors.clear
+    elsif valid_length?
+      is_a_word?
     else
-      return false
+      puts "Run else, spawning for each neighbor...".red
+      until self.neighbors.empty?
+        spawn
+      end
     end
-  end 
+    puts "RUNNING CHILDREN... Children empty? #{@children.empty?}"
+    @children.each do |i|
+      puts "|i|.position is #{i.position}".green
+      puts "Ancestry before running for #{i.object_id}: #{i.ancestry}".green
+      i.run
+      puts "Ancestry after running for #{i.object_id}: #{i.ancestry}".green
+    end  
+  end
+    # until self.neighbors.empty?
+    #   if valid_length?
+    #     is_a_word?
+    #     if part_of_word?
+    #       spawn
+    #     else
+    #       self.neighbors.clear
+    #     end
+    #   else
+    #     spawn
+    #   end
+    # end
+
   
-  def part_of_word?
-    if make_string.length > 1
-      @@dict.each do |i|
-        if /#{make_string}/.match(i)
-          return true
-        end
-      end
-    else
-      return false
-    end
-  end 
+  def spawn
+    puts "Before spawning...  self is: #{self.object_id}Length: #{@ancestry.count}, Ancestry before addition: (#{@ancestry[0]}, #{@ancestry[1]}),  Words: #{@@words.count}".blue
+    new_position = self.neighbors.pop
+    new_ancestry = self.ancestry
+    puts "Spawning a bew position: #{new_position}".blue
+    @children << Segment.new(@neighbors.pop, @ancestry)
+    puts "After spawning...  self is: #{self.object_id}Length: #{@ancestry.count}, Ancestry before addition: (#{@ancestry[0]}, #{@ancestry[1]}),  Words: #{@@words.count}".blue
+  end
 end
 
-seg = Segment.new([0,1], [[0,0]])
-seg.update_ancestry
-#Are you a word? ####################### 1)
+# seg = Segment.new([0,0], [])
+# puts "Original object id: #{seg.object_id}"
+# seg.run
 
-
-puts "..."
-puts "1) Is seg a word? #{seg.is_a_word?}"
-
-puts "..."
-
-#Are you part of a word? ################ 2)
-puts "2) Is seg part of a word? #{seg.part_of_word?}" 
-
-puts "..."
-
-#Do you have neighbors? ################# 3)
-puts "3) Does seg have neighbors #{seg.find_neighbors}"
-puts "..."
-puts "4) Here is seg's position #{seg.position}"
-puts "4.5) Here is seg's ancestry: #{seg.ancestry}"
-
-seg2 = Segment.new(seg.neighbors.first, seg.ancestry)
-#Are you a word? ####################### 1)
-seg2.update_ancestry
-puts "1) Is seg2 a word? #{seg2.is_a_word?}"
-
-puts "..."
-
-#Are you part of a word? ################ 2)
-puts "2) Is seg2 part of a word? #{seg2.part_of_word?}"
-puts "2.5) Seg2 is: #{seg2.make_string}"
-puts "2.75 Seg2's ancestry is: #{seg2.ancestry}"
-puts "..."
-
-#Do you have neighbors? ################# 3)
-puts "3) Does seg2 have neighbors #{seg2.find_neighbors}"
-puts "..."
-puts "4) Here is seg2's position #{seg2.position}"
-# board.each do |i|
-#   row_been = []
-#   i.each do |j|
-#     array_been = []
-#     if dict.includes?(j)
-#       solution << j
-#     elsif !dict.keep_if {|k| k =~ /\A[j]\w+/ }.empty?
-#       array_been << j.index
-#       rown_been << array_been
-#     end
-#   end
-# end
-# 
-# def right_neighbor
-#   neighbor = square_array[@position[row]][@position[column] + 1]
-#   if neighbor
-#     return ["#{row}", "#{column + 1}"]
-#   end
-# end
-# 
-# def left_neighbor    
-#   neighbor = square_array[@position[row]][@position[column] - 1]
-#   if neighbor
-#     return ["#{row}", "#{column - 1}"]
-#   end
-#     
-# def top_neighbor
-#   neighbor = square_array[@position[row - 1]][@position[column]]
-#   if neighbor
-#     return ["#{row - 1}", "#{column}"]
-#   end
-# end
-# 
-# def bottom_neighbor
-#   neighbor = square_array[@position[row + 1]][@position[column]]
-#   if neighbor
-#     return ["#{row + 1}", "#{column + count}"]
-#   end
-# end
+#Segments need to be able to create segments
+#Segments need to be able to remove 

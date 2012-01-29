@@ -1,0 +1,1 @@
+boggle_board = Array.new(4) {[]}.each {|i| i << 0 << 1 << 2 << 3}
