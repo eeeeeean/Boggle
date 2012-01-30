@@ -13,6 +13,7 @@ class Branch
     @location = location
     @history = [Segment.new(location)]
     @words = []
+    @count = 0
   end
 
   def current_segment
@@ -21,12 +22,13 @@ class Branch
   
   def grow
     new_segment = Segment.new(current_segment.neighbors.first)
+    current_segment.neighbors -= [current_segment.neighbors.first]
     @history.push(new_segment)
-    puts "New segment is: #{new_segment.position}".green
-    @history[-2].neighbors.delete_if {|i| i == current_segment.position}
-    @history.each {|i| current_segment.neighbors -= i.position}
-    puts "Its chain is: #{@history}".green
-    puts puts "And these are the the neighbors for #{@history[-2].position}: #{@history[-2].neighbors}"
+    @history.each {|i| current_segment.neighbors -= [i.position]}
+    @count += 1
+    puts "Growth #: ".green + "#{@count}" 
+    puts "Branch length is: ".green + "#{@history.count}"
+    puts "Words collected: ".green + "#{@words}".red
     puts "..."
   end
   
@@ -35,7 +37,7 @@ class Branch
   end
   
   def can_grow?
-    @history.last.has_neighbor?
+    current_segment.has_neighbor?
   end
   
   def should_grow?
@@ -51,11 +53,13 @@ class Branch
   end
 
   def part_of_word?
-    !@@dict.clone.keep_if {|i| /\A#{make_string}\w+/.match(i)}.empty?
+    @@dict.any? {|i| i.include?(make_string)}  
+#    !@@dict.clone.keep_if {|i| /\A#{make_string}\w+/.match(i)}.empty?
   end
   
   def is_a_word?    
-    !@@dict.clone.keep_if {|i| /\A#{make_string}\z/.match(i)}.empty? && make_string.length > 2
+    @@dict.find {|i| i == make_string} unless make_string.length < 3
+#    !@@dict.clone.keep_if {|i| /\A#{make_string}\z/.match(i)}.empty? && make_string.length > 2
   end
   
   def add_word
@@ -71,10 +75,10 @@ class Segment
     @position = position
     @neighbors = []
     @added = false
-    find_neighbors
+    populate_neighbors
   end
   
-  def find_neighbors
+  def populate_neighbors
     row = @position[0]
     column = @position[1]
     north = [row - 1, column]
@@ -101,18 +105,14 @@ end
 
 branch = Branch.new([0,0])
 until !branch.history.first.has_neighbor?
-  puts "In the loop".blue
   if !branch.current_segment.added?
     if branch.is_a_word?
       branch.add_word
       branch.current_segment.added = true
-      puts "#{branch.words}".red
     end
   end
   if branch.can_grow? && branch.should_grow?
-    puts "Growing...from #{branch.current_segment.position}, word: #{branch.make_string}".green
     branch.grow
-    puts "...to word #{branch.make_string}"
   else
     branch.retreat
   end
