@@ -20,6 +20,16 @@ class Branch
     @history.last
   end
   
+  def all_positions
+    @history.collect {|i| i.position}
+  end
+  
+  def print_board
+      @@board.each do |i|
+        puts "#{i.each {|j| print j}}"
+      end
+  end
+  
   def grow
     new_segment = Segment.new(current_segment.neighbors.first)
     current_segment.neighbors -= [current_segment.neighbors.first]
@@ -63,18 +73,19 @@ class Branch
   end
   
   def add_word
-    @words << make_string unless !is_a_word?
+    @words << make_string
   end
   
 end
 
 class Segment
-  attr_accessor :neighbors, :position, :added
+  attr_accessor :neighbors, :position, :added, :word_part
   
   def initialize(position)
     @position = position
     @neighbors = []
     @added = false
+    @word_part = true
     populate_neighbors
   end
   
@@ -113,7 +124,11 @@ until !branch.history.first.has_neighbor?
   end
   if branch.can_grow? && branch.should_grow?
     branch.grow
+    puts ""
+    puts "..."
   else
     branch.retreat
+    puts ""
+    puts "..."
   end
 end  
