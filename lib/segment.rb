@@ -1,8 +1,9 @@
 class Segment
   attr_accessor :neighbors, :position, :added, :word_part
 
-  def initialize(position)
+  def initialize(position, board_size)
     @position = position
+    @board_size = board_size
     @neighbors = []
     @added = false
     @word_part = true
@@ -12,16 +13,20 @@ class Segment
   def populate_neighbors
     row = @position[0]
     column = @position[1]
-    north = [row - 1, column]
-    south = [row + 1, column]
-    east = [row, column + 1]
-    west = [row, column - 1]
-    northwest = [row - 1, column - 1]
-    southwest = [row + 1, column - 1]
-    northeast = [row - 1, column + 1]
-    southeast = [row + 1, column + 1]
-    @neighbors << north << south << east << west << northwest << southwest << northeast << southeast
-    @neighbors.keep_if {|i| i[0] >= 0 && i[0] <= 3 && i[1] >= 0 && i[1] <= 3}
+    n = [row - 1, column]
+    s = [row + 1, column]
+    e = [row, column + 1]
+    w = [row, column - 1]
+    nw = [row - 1, column - 1]
+    se = [row + 1, column - 1]
+    ne = [row - 1, column + 1]
+    se = [row + 1, column + 1]
+    @neighbors << n << s << e << w << nw << sw << ne << se
+    @neighbors.keep_if {|i| within_bounds?(i) }
+  end
+
+  def within_bounds?(pos) #a single [0,1] type array
+    pos[0] >= 0 && pos[0] <= @board_size && pos[1] >= 0 && pos[1] <= @board_size
   end
 
   def added?

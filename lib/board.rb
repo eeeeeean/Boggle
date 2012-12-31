@@ -1,11 +1,12 @@
 require_relative 'branch'
+require 'colorize'
 
 class Board
 
   attr_accessor :alphabet
 
-  def initialize(size)
-    @size = size.to_i
+  def initialize(board_size)
+    @board_size = size.to_i
     @score = 0
     @words = []
     @grid = {}
@@ -17,28 +18,31 @@ class Board
   private
 
   def populate
-    @size.times { |n| @size.times { |o| @grid[[n,o]]= @alphabet.sample } }
+    @board_size.times { |n| @board_size.times { |o| @grid[[n,o]]= @alphabet.sample } }
   end
 
   def score
     @grid.each_key do |n|
-      branch = Branch.new(n, @grid)
+      branch = Branch.new(n, @grid, @board_size)
+      puts "Creating branch #{n}"
       until branch.out_of_neighbors?
         if !branch.current_segment.added?
           if branch.is_a_word?
             @words << branch.add_word
+            puts @words.green
             @score +=1
+            puts 'Words:' + "#{@words.count}".green
             branch.current_segment.added = true
           end
         end
         if branch.can_grow? && branch.should_grow?
           branch.grow
-          puts ""
-          puts "..."
+          #puts ""
+          #puts "..."
         else
           branch.retreat
-          puts ""
-          puts "..."
+          #puts ""
+          #puts "..."
         end
       end
     end

@@ -10,12 +10,12 @@
 
 class Branch
   require 'colorize'
-  attr_accessor :current_segment, :history, :words
+  attr_accessor :current_segment, :history, :words, :count
 
-  def initialize(location, grid)
+  def initialize(location, grid, board_size)
     @grid = grid
     @location = location
-    @history = [Segment.new(location)]
+    @history = [Segment.new(location, board_size)]
     @words = []
     @count = 0
     @dict = make_dict
@@ -41,10 +41,10 @@ class Branch
     @history.push(new_segment)
     @history.each {|i| current_segment.neighbors -= [i.position]}
     @count += 1
-    puts "Growth #: ".green + "#{@count}"
-    puts "Branch length is: ".green + "#{@history.count}"
-    puts "Words collected: ".green + "#{@words}".red
-    puts "..."
+    #puts "Growth #: ".green + "#{@count}"
+    #puts "Branch length is: ".green + "#{@history.count}"
+    #puts "Words collected: ".green + "#{@words}".red
+    #puts "..."
   end
 
   def retreat
@@ -72,6 +72,7 @@ class Branch
       point = [i.position[0].to_i, i.position[1].to_i]
       @grid[point]
     end.join
+
   end
 
   def part_of_word?
