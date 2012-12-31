@@ -20,7 +20,17 @@ class Board
     @board_size.times { |n| @board_size.times { |o| @grid[[n,o]]= @alphabet.sample } }
   end
 
+  def show_grid
+    count = []
+    @board_size.times { |n| count << n }
+    count.each do |n|
+      count.each { |o| print " #{@grid[[n,o]]}" }
+      print "\n"
+    end
+  end
+
   def score
+    show_grid
     @grid.each_key do |n|
       branch = Branch.new(n, @grid, @board_size)
       puts "Creating branch #{n}".green
