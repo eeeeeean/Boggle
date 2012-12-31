@@ -1,4 +1,5 @@
 class Segment
+
   attr_accessor :neighbors, :position, :added, :word_part
 
   def initialize(position, board_size)
@@ -18,7 +19,7 @@ class Segment
     e = [row, column + 1]
     w = [row, column - 1]
     nw = [row - 1, column - 1]
-    se = [row + 1, column - 1]
+    sw = [row + 1, column - 1]
     ne = [row - 1, column + 1]
     se = [row + 1, column + 1]
     @neighbors << n << s << e << w << nw << sw << ne << se
