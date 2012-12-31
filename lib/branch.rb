@@ -68,7 +68,10 @@ class Branch
   end
 
   def make_string
-    @history.map {|i| @@board[i.position[0]][i.position[1]]}.join
+    @history.map do |i|
+      point = [i.position[0].to_i, i.position[1].to_i]
+      @grid[point]
+    end.join
   end
 
   def part_of_word?
