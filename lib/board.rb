@@ -5,8 +5,9 @@ class Board
 
   attr_accessor :alphabet
 
-  def initialize(board_size)
+  def initialize(board_size, string = nil)
     @board_size = board_size.to_i
+    @string = string ? string.split(',') : nil
     @words = []
     @grid = {}
     @alphabet = %w(a b c d e f g h i j k l m n o p q r s t u v w x y z)
@@ -16,8 +17,14 @@ class Board
 
   private
 
+  def get_letters
+    @string ? @string.shift : @alphabet.sample
+  end
+
   def populate
-    @board_size.times { |n| @board_size.times { |o| @grid[[n,o]]= @alphabet.sample } }
+    @board_size.times do |n|
+      @board_size.times { |o| @grid[[n,o]]= get_letters }
+    end
   end
 
   def show_grid
@@ -35,8 +42,9 @@ class Board
       branch = Branch.new(n, @grid, @board_size)
       puts "Creating branch #{n}".green
       until branch.dead?
-        @words << branch.make_string if branch.is_a_word?
         branch.can_grow? && branch.should_grow? ? branch.grow : branch.retreat
+        @words << branch.make_string if branch.is_a_word?
+        puts branch.make_string
       end
       puts "Total score: #{@words.uniq.count}"
     end
