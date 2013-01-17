@@ -1,13 +1,14 @@
 class Segment
 
-  attr_accessor :neighbors, :position, :added, :word_part
+  attr_accessor :neighbors, :position, :added, :word_part, :dict
 
-  def initialize(position, board_size)
+  def initialize(position, board_size, dict)
     @position = position
     @board_size = board_size
     @neighbors = []
     @added = false
     @word_part = true
+    @dict = dict
     populate_neighbors
   end
 

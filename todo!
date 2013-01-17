@@ -1,0 +1,3 @@
+ in the grow method i should give the newest segment the most recent dict
+
+we do that by grabbing the last dict and doing part_of_word?

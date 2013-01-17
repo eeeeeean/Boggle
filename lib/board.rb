@@ -42,9 +42,14 @@ class Board
       branch = Branch.new(n, @grid, @board_size)
       puts "Creating branch #{n}".green
       until branch.dead?
-        branch.can_grow? && branch.should_grow? ? branch.grow : branch.retreat
-        @words << branch.make_string if branch.is_a_word?
-        puts branch.make_string
+        @words << branch.stringify if branch.is_a_word?
+        puts branch.stringify
+        if branch.can_grow? && branch.should_grow?
+          branch.grow
+        else
+          branch.retreat
+          # The branch is dying by removing neighbors.
+        end
       end
       puts "Total score: #{@words.uniq.count}"
     end

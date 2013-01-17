@@ -16,14 +16,15 @@ class Branch
     @grid = grid
     @location = location
     @board_size = board_size
-    @history = [Segment.new(location, board_size)]
+    @dict = make_dict
+    @history = [Segment.new(location, board_size, @dict)]
     @words = []
     @count = 0
-    @dict = make_dict
+    add_history_to_head
   end
 
   def dead?
-    out_of_neighbors? || no_history?
+    no_history?
   end
 
   def no_history?
@@ -45,14 +46,16 @@ class Branch
   end
 
   def grow
-    new_segment = activate_neighbor
+    new_segment = activate_neighbor if first_neighbor
     current_segment.neighbors -= [first_neighbor]
-    make_new_head(new_segment)
+    make_new_head(new_segment) if first_neighbor
     add_history_to_head
   end
 
-  def activate_neighbor
-    Segment.new(first_neighbor, @board_size)
+  def activate_neighbor # neighbors are positions
+    string = stringify + " #{ @grid[first_neighbor] }"
+    new_dict = check_dict(current_segment.dict, string)
+    Segment.new(first_neighbor, @board_size, new_dict)
   end
 
   def first_neighbor
@@ -67,40 +70,50 @@ class Branch
     @history.each {|i| current_segment.neighbors -= [i.position]}
   end
 
+  def get_dict
+    current_segment.dict
+  end
+
   def retreat
     @history.delete_at(-1)
   end
 
   def can_grow?
+   # puts "Can grow for #{make_string} is: #{current_segment.has_neighbor?} "
+   # puts "History members: #{@history.count} "
     current_segment.has_neighbor?
   end
 
   def should_grow?
-    make_string.length < 3 || part_of_word?
+    #puts "#Should grow for #{make_string} is: #{make_string.length < 3 || part_of_word?}"
+    stringify.length < 3 || part_of_word?
   end
 
   def out_of_neighbors?
     @history.first.neighbors.empty?
   end
 
-  def make_string
-    @history.map do |i|
+  def make_string(array_of_segments)
+    array_of_segments.map do |i|
       point = [i.position[0].to_i, i.position[1].to_i]
       @grid[point]
     end.join
+  end
 
+  def stringify
+    make_string @history
   end
 
   def part_of_word? #eliminate non-matches until empty
-    check_dict
-    !@dict.empty?
+    check_dict(get_dict, stringify)
+    !get_dict.empty?
   end
 
-  def check_dict
-    @dict.keep_if { |n| n.first_part_is?(make_string) }
+  def check_dict(dict, string)
+    dict.keep_if { |n| n.first_part_is?(string) }
   end
 
   def is_a_word?
-    @dict.find {|i| i == make_string} unless make_string.length < 3
+    get_dict.find { |i| i == stringify } unless stringify.length < 3
   end
 end
