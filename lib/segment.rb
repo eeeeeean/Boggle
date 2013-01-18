@@ -36,6 +36,7 @@ class Segment
   end
 
   def has_neighbor?
+    @neighbors.compact!
     !@neighbors.empty?
   end
 

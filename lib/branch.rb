@@ -1,10 +1,10 @@
   class String
     def first_letter_is?(letter)
-      self.match(/\A#{letter}\w+/i )
+      self.match(/\A#{letter}\w*/i )
     end
 
     def first_part_is?(string)
-      self.match(/\A#{string}\w+/i )
+      self.match(/\A#{string}\w*/i )
     end
   end
 
@@ -16,7 +16,7 @@ class Branch
     @grid = grid
     @location = location
     @board_size = board_size
-    @dict = make_dict
+    @dict = fresh_dict
     @history = [Segment.new(location, board_size, @dict)]
     @words = []
     @count = 0
@@ -31,7 +31,7 @@ class Branch
     @history.empty?
   end
 
-  def make_dict
+  def fresh_dict
     letter = @grid[@location]
     dict = File.new("/usr/share/dict/words")
     dict.readlines.keep_if { |n| n.first_letter_is?(letter) }.each {|i| i.chomp!}
@@ -50,10 +50,11 @@ class Branch
     current_segment.neighbors -= [first_neighbor]
     make_new_head(new_segment) if first_neighbor
     add_history_to_head
+    add_head_to_history
   end
 
   def activate_neighbor # neighbors are positions
-    string = stringify + " #{ @grid[first_neighbor] }"
+    string = stringify + "#{ @grid[first_neighbor] }"
     new_dict = check_dict(current_segment.dict, string)
     Segment.new(first_neighbor, @board_size, new_dict)
   end
@@ -67,7 +68,11 @@ class Branch
   end
 
   def add_history_to_head
-    @history.each {|i| current_segment.neighbors -= [i.position]}
+    @history.each { |i| current_segment.neighbors -= [i.position] }
+  end
+
+  def add_head_to_history
+    @history.each { |i| i.neighbors -= current_segment.position }
   end
 
   def get_dict
@@ -105,8 +110,7 @@ class Branch
   end
 
   def part_of_word? #eliminate non-matches until empty
-    check_dict(get_dict, stringify)
-    !get_dict.empty?
+    check_dict(get_dict, stringify).compact.length > 0
   end
 
   def check_dict(dict, string)
