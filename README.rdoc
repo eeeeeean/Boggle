@@ -1,1 +1,2 @@
+Score: 36
   ruby run_me.rb 4 'h,u,z,i,o,l,y,r,k,s,u,c,k,t,x,g'
