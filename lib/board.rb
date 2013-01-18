@@ -43,11 +43,13 @@ class Board
       puts "Creating branch #{n}".green
       until branch.dead?
         @words << branch.stringify if branch.is_a_word?
-        puts branch.stringify
+        puts branch.stringify + " stringified at startw"
         if branch.can_grow? && branch.should_grow?
           branch.grow
+          puts branch.stringify + branch.history.last.inspect + " after grow"
         else
           branch.retreat
+          puts branch.stringify + branch.history.last.inspect + "after retreat"
           # The branch is dying by removing neighbors.
         end
       end

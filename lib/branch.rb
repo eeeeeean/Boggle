@@ -46,9 +46,9 @@ class Branch
   end
 
   def grow
-    new_segment = activate_neighbor if first_neighbor
+    new_segment = activate_neighbor
     current_segment.neighbors -= [first_neighbor]
-    make_new_head(new_segment) if first_neighbor
+    make_new_head(new_segment)
     add_history_to_head
     add_head_to_history
   end
@@ -109,12 +109,12 @@ class Branch
     make_string @history
   end
 
-  def part_of_word? #eliminate non-matches until empty
-    check_dict(get_dict, stringify).compact.length > 0
+  def part_of_word?
+    get_dict.compact.length > 0
   end
 
   def check_dict(dict, string)
-    dict.keep_if { |n| n.first_part_is?(string) }
+    dict.dup.keep_if { |n| n.first_part_is?(string) }
   end
 
   def is_a_word?

@@ -5,3 +5,5 @@ we do that by grabbing the last dict and doing part_of_word?
 we should rewrite the classes, segments should have letters in them
 
 you could have more than one branch per start point (but that might make for redundant checking against the dict)
+
+there is a problem happening with counting from zero when naming arrays, positions, and everything.
