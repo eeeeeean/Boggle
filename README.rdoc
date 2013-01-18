@@ -1,11 +1,1 @@
-Switched to branch.rb
-
-Using enumerator#any? turns out to be a lot faster than regex searches on arrays.
-
-Create branches.
-
-The board itself can be a hash, the key is a position array: [0,1] and the value is a letter.
-
-It would be cool if people could add new boards to it. That way the pool could change.
-
-ruby run_me.rb 4 'h,u,z,i,o,l,y,r,k,s,u,c,k,t,x,g'
+  ruby run_me.rb 4 'h,u,z,i,o,l,y,r,k,s,u,c,k,t,x,g'
