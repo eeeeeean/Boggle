@@ -13,6 +13,7 @@ class Board
     @alphabet = %w(a b c d e f g h i j k l m n o p q r s t u v w x y z)
     populate
     score
+    print_words
   end
 
   private
@@ -43,17 +44,18 @@ class Board
       puts "Creating branch #{n}".green
       until branch.dead?
         @words << branch.stringify if branch.is_a_word?
-        puts branch.stringify + " stringified at startw"
         if branch.can_grow? && branch.should_grow?
           branch.grow
-          puts branch.stringify + branch.history.last.inspect + " after grow"
         else
           branch.retreat
-          puts branch.stringify + branch.history.last.inspect + "after retreat"
           # The branch is dying by removing neighbors.
         end
       end
       puts "Total score: #{@words.uniq.count}"
     end
+  end
+
+  def print_words
+    print @words.uniq
   end
 end
