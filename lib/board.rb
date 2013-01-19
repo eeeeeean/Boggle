@@ -3,7 +3,7 @@ require 'colorize'
 
 class Board
 
-  attr_accessor :alphabet
+  attr_reader :alphabet
 
   def initialize(board_size, string = nil)
     @board_size = board_size.to_i
