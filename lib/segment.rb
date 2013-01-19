@@ -1,14 +1,12 @@
 class Segment
 
-  attr_accessor :neighbors, :position, :added, :word_part
+  attr_accessor :neighbors, :position
   attr_reader :dict
 
   def initialize(position, board_size, dict)
     @position = position
     @board_size = board_size - 1
     @neighbors = []
-    @added = false
-    @word_part = true
     @dict = dict
     @dict.freeze
     populate_neighbors
@@ -31,10 +29,6 @@ class Segment
 
   def within_bounds?(pos) #a single [0,1] type array
     pos[0] >= 0 && pos[0] <= @board_size && pos[1] >= 0 && pos[1] <= @board_size
-  end
-
-  def added?
-    @added
   end
 
   def has_neighbor?

@@ -10,25 +10,23 @@
 
 class Branch
   require 'colorize'
-  attr_accessor :current_segment, :history, :words, :count
+  attr_accessor :stack
 
   def initialize(location, grid, board_size)
     @grid = grid
     @location = location
     @board_size = board_size
     @dict = fresh_dict
-    @history = [Segment.new(location, board_size, @dict)]
-    @words = []
-    @count = 0
-    add_history_to_head
+    @stack = [Segment.new(location, board_size, @dict)]
+    add_stack_to_head
   end
 
   def dead?
-    no_history?
+    no_stack?
   end
 
-  def no_history?
-    @history.empty?
+  def no_stack?
+    @stack.empty?
   end
 
   def fresh_dict
@@ -38,19 +36,19 @@ class Branch
   end
 
   def current_segment
-    @history.last
+    @stack.last
   end
 
   def all_positions
-    @history.collect {|i| i.position}
+    @stack.collect {|i| i.position}
   end
 
   def grow
     new_segment = activate_neighbor
     current_segment.neighbors -= [first_neighbor]
     make_new_head(new_segment)
-    add_history_to_head
-    add_head_to_history
+    add_stack_to_head
+    add_head_to_stack
   end
 
   def activate_neighbor # neighbors are positions
@@ -64,15 +62,15 @@ class Branch
   end
 
   def make_new_head(segment)
-    @history.push(segment)
+    @stack.push(segment)
   end
 
-  def add_history_to_head
-    @history.each { |i| current_segment.neighbors -= [i.position] }
+  def add_stack_to_head
+    @stack.each { |i| current_segment.neighbors -= [i.position] }
   end
 
-  def add_head_to_history
-    @history.each { |i| i.neighbors -= current_segment.position }
+  def add_head_to_stack
+    @stack.each { |i| i.neighbors -= current_segment.position }
   end
 
   def get_dict
@@ -80,12 +78,12 @@ class Branch
   end
 
   def retreat
-    @history.delete_at(-1)
+    @stack.delete_at(-1)
   end
 
   def can_grow?
    # puts "Can grow for #{make_string} is: #{current_segment.has_neighbor?} "
-   # puts "History members: #{@history.count} "
+   # puts "stack members: #{@stack.count} "
     current_segment.has_neighbor?
   end
 
@@ -95,7 +93,7 @@ class Branch
   end
 
   def out_of_neighbors?
-    @history.first.neighbors.empty?
+    @stack.first.neighbors.empty?
   end
 
   def make_string(array_of_segments)
@@ -106,7 +104,7 @@ class Branch
   end
 
   def stringify
-    make_string @history
+    make_string @stack
   end
 
   def part_of_word?
