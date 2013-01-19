@@ -117,6 +117,6 @@ class Branch
   end
 
   def too_short?
-    stringif.length < 3
+    stringify.length < 3
   end
 end
