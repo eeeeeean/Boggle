@@ -1,2 +1,4 @@
-Score: 53
-  ruby run_me.rb 4 's,g,c,h,m,e,g,q,y,m,a,p,p,r,o,a'
+643 words
+  ruby run_me.rb 4 's,e,r,s,p,a,t,g,l,i,n,e,s,e,r,s'
+
+http://ai.stanford.edu/~chuongdo/boggle/index.html
