@@ -48,7 +48,6 @@ class Board
           branch.grow
         else
           branch.retreat
-          # The branch is dying by removing neighbors.
         end
       end
       puts "Total score: #{@words.uniq.count}"

@@ -25,9 +25,11 @@ class Branch
     no_stack?
   end
 
+  # A liberty is a position, known to the active segment, where branch can grow
+
   def grow
-    new_segment = activate_neighbor
-    current_segment.neighbors -= [first_neighbor]
+    new_segment = activate_liberty
+    current_segment.liberties -= [first_liberty]
     make_new_head(new_segment)
     add_stack_to_head
     add_head_to_stack
@@ -38,7 +40,7 @@ class Branch
   end
 
   def can_grow?
-    current_segment.has_neighbor?
+    current_segment.has_liberty?
   end
 
   def should_grow?
@@ -55,18 +57,18 @@ class Branch
 
   private
 
-  def activate_neighbor # neighbors are positions
-    string = stringify + "#{ @grid[first_neighbor] }"
+  def activate_liberty # liberties are positions
+    string = stringify + "#{ @grid[first_liberty] }"
     new_dict = check_dict(current_segment.dict, string)
-    Segment.new(first_neighbor, @board_size, new_dict)
+    Segment.new(first_liberty, @board_size, new_dict)
   end
 
   def add_head_to_stack
-    @stack.each { |i| i.neighbors -= current_segment.position }
+    @stack.each { |i| i.liberties -= current_segment.position }
   end
 
   def add_stack_to_head
-    @stack.each { |i| current_segment.neighbors -= [i.position] }
+    @stack.each { |i| current_segment.liberties -= [i.position] }
   end
 
   def check_dict(dict, string)
@@ -77,8 +79,8 @@ class Branch
     @stack.last
   end
 
-  def first_neighbor
-    current_segment.neighbors.first
+  def first_liberty
+    current_segment.liberties.first
   end
 
   def fresh_dict
@@ -106,8 +108,8 @@ class Branch
     @stack.empty?
   end
 
-  def out_of_neighbors?
-    @stack.first.neighbors.empty?
+  def out_of_liberties?
+    @stack.first.liberties.empty?
   end
 
   def part_of_word?
