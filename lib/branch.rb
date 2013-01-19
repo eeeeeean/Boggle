@@ -25,24 +25,6 @@ class Branch
     no_stack?
   end
 
-  def no_stack?
-    @stack.empty?
-  end
-
-  def fresh_dict
-    letter = @grid[@location]
-    dict = File.new("/usr/share/dict/words")
-    dict.readlines.keep_if { |n| n.first_letter_is?(letter) }.each {|i| i.chomp!}
-  end
-
-  def current_segment
-    @stack.last
-  end
-
-  def all_positions
-    @stack.collect {|i| i.position}
-  end
-
   def grow
     new_segment = activate_neighbor
     current_segment.neighbors -= [first_neighbor]
@@ -51,49 +33,66 @@ class Branch
     add_head_to_stack
   end
 
+  def retreat
+    @stack.delete_at(-1)
+  end
+
+  def can_grow?
+    current_segment.has_neighbor?
+  end
+
+  def should_grow?
+    stringify.length < 3 || part_of_word?
+  end
+
+  def stringify
+    make_string @stack
+  end
+
+  def is_a_word?
+    get_dict.find { |i| i == stringify } unless too_short?
+  end
+
+  private
+
   def activate_neighbor # neighbors are positions
     string = stringify + "#{ @grid[first_neighbor] }"
     new_dict = check_dict(current_segment.dict, string)
     Segment.new(first_neighbor, @board_size, new_dict)
   end
 
-  def first_neighbor
-    current_segment.neighbors.first
-  end
-
-  def make_new_head(segment)
-    @stack.push(segment)
+  def add_head_to_stack
+    @stack.each { |i| i.neighbors -= current_segment.position }
   end
 
   def add_stack_to_head
     @stack.each { |i| current_segment.neighbors -= [i.position] }
   end
 
-  def add_head_to_stack
-    @stack.each { |i| i.neighbors -= current_segment.position }
+  def check_dict(dict, string)
+    dict.dup.keep_if { |n| n.first_part_is?(string) }
+  end
+
+  def current_segment
+    @stack.last
+  end
+
+  def first_neighbor
+    current_segment.neighbors.first
+  end
+
+  def fresh_dict
+    letter = @grid[@location]
+    dict = File.new("/usr/share/dict/words")
+    dict.readlines.keep_if { |n| n.first_letter_is?(letter) }.each {|i| i.chomp!}
   end
 
   def get_dict
     current_segment.dict
   end
 
-  def retreat
-    @stack.delete_at(-1)
-  end
-
-  def can_grow?
-   # puts "Can grow for #{make_string} is: #{current_segment.has_neighbor?} "
-   # puts "stack members: #{@stack.count} "
-    current_segment.has_neighbor?
-  end
-
-  def should_grow?
-    #puts "#Should grow for #{make_string} is: #{make_string.length < 3 || part_of_word?}"
-    stringify.length < 3 || part_of_word?
-  end
-
-  def out_of_neighbors?
-    @stack.first.neighbors.empty?
+  def make_new_head(segment)
+    @stack.push(segment)
   end
 
   def make_string(array_of_segments)
@@ -103,19 +102,19 @@ class Branch
     end.join
   end
 
-  def stringify
-    make_string @stack
+  def no_stack?
+    @stack.empty?
+  end
+
+  def out_of_neighbors?
+    @stack.first.neighbors.empty?
   end
 
   def part_of_word?
     get_dict.compact.length > 0
   end
 
-  def check_dict(dict, string)
-    dict.dup.keep_if { |n| n.first_part_is?(string) }
-  end
-
-  def is_a_word?
-    get_dict.find { |i| i == stringify } unless stringify.length < 3
+  def too_short?
+    stringif.length < 3
   end
 end
