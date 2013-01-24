@@ -1,4 +1,4 @@
-To generate a random board and solve it, just give the run_me.rb script an argument'that is the length of the board:
+To generate a random board and solve it, just give the run_me.rb script an argument that is the length of the board:
 
   ruby run_me.rb 5
 
@@ -7,3 +7,5 @@ Or run a pre-made board like this:
   ruby run_me.rb 4 's,e,r,s,p,a,t,g,l,i,n,e,s,e,r,s'
 
 That board is thanks to http://ai.stanford.edu/~chuongdo/boggle/index.html
+
+Hello there!
